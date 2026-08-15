@@ -1,0 +1,27 @@
+{
+  "name": "okey-yazboz",
+  "version": "1.0.0",
+  "description": "Okey 101 ve 81 Yazboz skor tutma uygulaması",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo 'Web assets already ready in www/'",
+    "cap:sync": "npx cap sync",
+    "cap:android": "npx cap open android",
+    "cap:ios": "npx cap open ios"
+  },
+  "keywords": ["okey", "yazboz", "capacitor"],
+  "author": "ahmetbayrak19-afk",
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/core": "^6.1.2",
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/ios": "^6.1.2",
+    "@capacitor/app": "^6.0.1",
+    "@capacitor/haptics": "^6.0.1",
+    "@capacitor/keyboard": "^6.0.2",
+    "@capacitor/status-bar": "^6.0.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2"
+  }
+}
