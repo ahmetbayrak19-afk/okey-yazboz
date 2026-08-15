@@ -7,7 +7,6 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Okey Yazboz">
-  <link rel="manifest" href="manifest.json">
   <title>Okey Yazboz</title>
   <style>
     :root {
@@ -29,14 +28,13 @@
       padding: 12px;
       line-height: 1.4;
     }
-    .screen { display: none; max-width: 480px; margin: 0 auto; }
+    .screen { display: none; max-width: 520px; margin: 0 auto; }
     .screen.active { display: block; }
-    h1 { text-align: center; font-size: 1.6rem; margin: 16px 0; }
-    h2 { font-size: 1.2rem; margin-bottom: 12px; }
+    h1 { text-align: center; font-size: 1.5rem; margin: 12px 0; }
+    h2 { font-size: 1.15rem; margin-bottom: 10px; }
     .btn {
-      display: block; width: 100%; padding: 14px; border: none; border-radius: 12px;
-      font-size: 1rem; font-weight: 600; cursor: pointer; margin-bottom: 10px;
-      transition: transform 0.1s, opacity 0.2s;
+      display: block; width: 100%; padding: 13px; border: none; border-radius: 12px;
+      font-size: 1rem; font-weight: 600; cursor: pointer; margin-bottom: 8px;
     }
     .btn:active { transform: scale(0.97); }
     .btn-primary { background: var(--primary); color: white; }
@@ -46,25 +44,62 @@
     .btn-outline {
       background: transparent; border: 2px solid var(--primary); color: var(--primary);
     }
-    .btn-sm { padding: 10px; font-size: 0.9rem; }
-    input[type="text"] {
-      width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #334155;
-      background: var(--card); color: var(--text); font-size: 1rem; margin-bottom: 10px;
+    .btn-sm { padding: 9px 6px; font-size: 0.85rem; }
+    input[type="text"], input[type="number"] {
+      width: 100%; padding: 11px; border-radius: 10px; border: 2px solid #334155;
+      background: var(--card); color: var(--text); font-size: 1rem; margin-bottom: 8px;
     }
     .card {
-      background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 12px;
+      background: var(--card); border-radius: 14px; padding: 14px; margin-bottom: 10px;
     }
-    .score-row {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 8px;
+    .hand-info {
+      text-align: center; color: var(--muted); margin-bottom: 10px; font-size: 0.95rem;
+    }
+    .teams-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .team-card {
+      flex: 1;
+      background: var(--card);
+      border-radius: 14px;
+      padding: 12px 10px;
+      text-align: center;
+    }
+    .team-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .score-value {
-      font-size: 2rem; font-weight: 700;
+      font-size: 2.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
     }
-    .team-name { font-size: 1.1rem; font-weight: 600; }
-    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
-    .hand-info {
-      text-align: center; color: var(--muted); margin-bottom: 12px; font-size: 0.95rem;
+    .score-input {
+      width: 100%;
+      padding: 10px 6px;
+      border-radius: 10px;
+      border: 2px solid #334155;
+      background: #0f172a;
+      color: var(--text);
+      font-size: 1.1rem;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .team-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .team-actions .btn {
+      flex: 1;
+      margin-bottom: 0;
+      padding: 10px 4px;
+      font-size: 0.82rem;
     }
     .modal {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
@@ -82,9 +117,10 @@
       text-align: center; padding: 24px; background: linear-gradient(135deg, #166534, #14532d);
       border-radius: 16px; margin: 20px 0;
     }
-    .winner-box h2 { font-size: 1.5rem; margin-bottom: 8px; }
+    .winner-box h2 { font-size: 1.4rem; margin-bottom: 8px; }
     .flex-between { display: flex; justify-content: space-between; gap: 8px; }
     .small { font-size: 0.85rem; color: var(--muted); }
+    .score-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
   </style>
 </head>
 <body>
@@ -119,7 +155,9 @@
     <div class="hand-info">
       <span id="hand-number">1. El</span> • <span id="game-type-label"></span>
     </div>
+
     <div id="scores-container"></div>
+
     <div class="card">
       <div class="flex-between">
         <button class="btn btn-warning btn-sm" onclick="showHistory()">Tüm El Skorları</button>
@@ -179,9 +217,9 @@
       if (state.mode === 'esli') {
         title.textContent = 'Takım İsimleri';
         form.innerHTML = `
-          <label class="small">Takım 1</label>
+          <label class="small">Sol Takım</label>
           <input type="text" id="name0" placeholder="Örn: Ahmet & Mehmet" value="Takım 1">
-          <label class="small">Takım 2</label>
+          <label class="small">Sağ Takım</label>
           <input type="text" id="name1" placeholder="Örn: Ali & Veli" value="Takım 2">
         `;
       } else {
@@ -200,7 +238,7 @@
       state.players = [];
       state.scores = [];
       for (let i = 0; i < count; i++) {
-        const val = document.getElementById('name' + i).value.trim() || `Takım/Oyuncu ${i+1}`;
+        const val = document.getElementById('name' + i).value.trim() || `Takım ${i+1}`;
         state.players.push(val);
         state.scores.push(0);
       }
@@ -218,25 +256,58 @@
       const container = document.getElementById('scores-container');
       container.innerHTML = '';
 
-      state.players.forEach((name, i) => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <div class="score-row">
+      // Eşli → yan yana 2 takım
+      if (state.mode === 'esli') {
+        const row = document.createElement('div');
+        row.className = 'teams-row';
+
+        state.players.forEach((name, i) => {
+          const card = document.createElement('div');
+          card.className = 'team-card';
+          card.innerHTML = `
             <div class="team-name">${name}</div>
             <div class="score-value" id="score-${i}">${state.scores[i]}</div>
-          </div>
-          <div class="actions">
-            <button class="btn btn-danger btn-sm" onclick="addPenalty(${i}, 50)">+50 Ceza</button>
-            <button class="btn btn-success btn-sm" onclick="addKafa(${i})">Kafa (-100)</button>
-          </div>
-          <div class="actions" style="margin-top:8px">
-            <button class="btn btn-outline btn-sm" onclick="addCustom(${i})">Özel Puan</button>
-            <button class="btn btn-outline btn-sm" onclick="undoLast(${i})">Geri Al</button>
-          </div>
-        `;
-        container.appendChild(card);
-      });
+            <input type="number" class="score-input" id="input-${i}" placeholder="Puan gir" inputmode="numeric">
+            <div class="team-actions">
+              <button class="btn btn-danger btn-sm" onclick="addFromInput(${i})">Ekle</button>
+              <button class="btn btn-danger btn-sm" onclick="addPenalty(${i}, 50)">+50</button>
+              <button class="btn btn-success btn-sm" onclick="addKafa(${i})">Kafa</button>
+            </div>
+          `;
+          row.appendChild(card);
+        });
+
+        container.appendChild(row);
+      } else {
+        // Tekli → alt alta
+        state.players.forEach((name, i) => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <div class="score-row">
+              <div class="team-name">${name}</div>
+              <div class="score-value" id="score-${i}">${state.scores[i]}</div>
+            </div>
+            <input type="number" class="score-input" id="input-${i}" placeholder="Puan gir" inputmode="numeric">
+            <div class="team-actions">
+              <button class="btn btn-danger btn-sm" onclick="addFromInput(${i})">Ekle</button>
+              <button class="btn btn-danger btn-sm" onclick="addPenalty(${i}, 50)">+50</button>
+              <button class="btn btn-success btn-sm" onclick="addKafa(${i})">Kafa</button>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      }
+    }
+
+    function addFromInput(index) {
+      const input = document.getElementById('input-' + index);
+      const val = parseInt(input.value);
+      if (isNaN(val)) return alert('Geçerli sayı gir');
+      state.scores[index] += val;
+      saveHistory(`${val > 0 ? '+' : ''}${val} → ${state.players[index]}`);
+      input.value = '';
+      updateScores();
     }
 
     function addPenalty(index, amount) {
@@ -251,23 +322,10 @@
       updateScores();
     }
 
-    function addCustom(index) {
-      const val = prompt(`${state.players[index]} için puan gir (pozitif ceza, negatif ödül):`);
-      if (val === null || val === '') return;
-      const num = parseInt(val);
-      if (isNaN(num)) return alert('Geçerli sayı gir');
-      state.scores[index] += num;
-      saveHistory(`${num > 0 ? '+' : ''}${num} → ${state.players[index]}`);
-      updateScores();
-    }
-
-    function undoLast(index) {
-      alert('Düzeltmek için "Özel Puan" butonunu kullan (negatif sayı girerek düşürebilirsin).');
-    }
-
     function updateScores() {
       state.scores.forEach((s, i) => {
-        document.getElementById('score-' + i).textContent = s;
+        const el = document.getElementById('score-' + i);
+        if (el) el.textContent = s;
       });
     }
 
@@ -287,7 +345,7 @@
 
       document.getElementById('winner-box').innerHTML = `
         <h2>🏆 Kazanan</h2>
-        <div style="font-size:1.4rem;font-weight:700">${winners.join(' & ')}</div>
+        <div style="font-size:1.3rem;font-weight:700">${winners.join(' & ')}</div>
         <div class="small" style="margin-top:8px">${min} puan</div>
       `;
 
