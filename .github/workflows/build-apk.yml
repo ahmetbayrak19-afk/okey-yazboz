@@ -27,8 +27,16 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Remove TypeScript config (force json)
+        run: |
+          rm -f capacitor.config.ts
+          ls -la
+
       - name: Install dependencies
         run: npm install
+
+      - name: Install TypeScript (güvenlik için)
+        run: npm install -D typescript
 
       - name: Add Android platform
         run: npx cap add android
