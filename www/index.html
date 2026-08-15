@@ -121,38 +121,41 @@
       color: var(--muted);
       margin-top: 4px;
     }
-    .modal {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75);
-      z-index: 100; padding: 16px; overflow-y: auto;
+    .history-box {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 12px;
+      margin-top: 12px;
+      margin-bottom: 10px;
     }
-    .modal.active { display: flex; align-items: flex-start; justify-content: center; }
-    .modal-content {
-      background: var(--card); border-radius: 16px; padding: 18px; width: 100%; max-width: 420px;
-      margin-top: 30px;
+    .history-box h3 {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+      text-align: center;
     }
     .score-table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 8px;
     }
     .score-table th, .score-table td {
-      padding: 10px 6px;
+      padding: 8px 4px;
       text-align: center;
       border-bottom: 1px solid #334155;
     }
     .score-table th {
       color: var(--muted);
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
     }
     .score-table td {
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 600;
     }
     .score-table .el-col {
       color: var(--muted);
       font-weight: 500;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
     }
     .winner-box {
       text-align: center; padding: 24px; background: linear-gradient(135deg, #166534, #14532d);
@@ -202,13 +205,14 @@
       <div class="diff-label" id="diff-label">Berabere</div>
     </div>
 
-    <div class="card">
-      <div class="flex-between">
-        <button class="btn btn-warning btn-sm" onclick="showHistory()">Tüm El Skorları</button>
-        <button class="btn btn-danger btn-sm" onclick="finishGame()">Oyunu Bitir</button>
-      </div>
-    </div>
     <button class="btn btn-outline" onclick="newHand()">Yeni El / Devam</button>
+    <button class="btn btn-danger" onclick="finishGame()">Oyunu Bitir</button>
+
+    <!-- Sürekli görünen el skorları -->
+    <div class="history-box" id="history-box">
+      <h3>El Skorları</h3>
+      <div id="history-list"></div>
+    </div>
   </div>
 
   <div id="screen-end" class="screen">
@@ -216,14 +220,6 @@
     <div class="winner-box" id="winner-box"></div>
     <div class="card" id="final-scores"></div>
     <button class="btn btn-primary" onclick="resetApp()">Yeni Oyun</button>
-  </div>
-
-  <div id="history-modal" class="modal">
-    <div class="modal-content">
-      <h2>Tüm El Skorları</h2>
-      <div id="history-list"></div>
-      <button class="btn btn-outline" style="margin-top:16px" onclick="closeHistory()">Kapat</button>
-    </div>
   </div>
 
   <script>
@@ -292,6 +288,7 @@
       state.handHistory = [];
       showScreen('screen-game');
       renderGame();
+      renderHistory();
     }
 
     function renderGame() {
@@ -360,6 +357,40 @@
       updateDiff();
     }
 
+    function renderHistory() {
+      const list = document.getElementById('history-list');
+
+      if (state.handHistory.length === 0) {
+        list.innerHTML = '<p class="small" style="text-align:center">Henüz el yok</p>';
+        return;
+      }
+
+      let html = `
+        <table class="score-table">
+          <thead>
+            <tr>
+              <th>El</th>
+              <th>${state.players[0] || 'Takım 1'}</th>
+              <th>${state.players[1] || 'Takım 2'}</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      state.handHistory.forEach(r => {
+        html += `
+          <tr>
+            <td class="el-col">${r.hand}. El</td>
+            <td>${r.scores[0] || 0}</td>
+            <td>${r.scores[1] || 0}</td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+      list.innerHTML = html;
+    }
+
     function addFromInput(index) {
       const input = document.getElementById('input-' + index);
       const val = parseInt(input.value);
@@ -396,17 +427,14 @@
       if (state.mode !== 'esli' || state.players.length < 2) return;
 
       const diff = Math.abs(state.scores[0] - state.scores[1]);
-      const elVal = document.getElementById('diff-value');
-      const elLabel = document.getElementById('diff-label');
-
-      elVal.textContent = diff;
+      document.getElementById('diff-value').textContent = diff;
 
       if (state.scores[0] < state.scores[1]) {
-        elLabel.textContent = state.players[0] + ' önde';
+        document.getElementById('diff-label').textContent = state.players[0] + ' önde';
       } else if (state.scores[1] < state.scores[0]) {
-        elLabel.textContent = state.players[1] + ' önde';
+        document.getElementById('diff-label').textContent = state.players[1] + ' önde';
       } else {
-        elLabel.textContent = 'Berabere';
+        document.getElementById('diff-label').textContent = 'Berabere';
       }
     }
 
@@ -419,6 +447,7 @@
       state.hand++;
       state.currentHand = new Array(state.players.length).fill(0);
       renderGame();
+      renderHistory();
     }
 
     function finishGame() {
@@ -444,50 +473,6 @@
         html += `<div class="score-row"><span>${p}</span><strong>${state.scores[i]}</strong></div>`;
       });
       document.getElementById('final-scores').innerHTML = html;
-    }
-
-    function showHistory() {
-      const list = document.getElementById('history-list');
-
-      if (state.handHistory.length === 0 && state.currentHand.every(v => v === 0)) {
-        list.innerHTML = '<p class="small">Henüz el oynanmadı.</p>';
-      } else {
-        let rows = [...state.handHistory];
-        if (state.currentHand.some(v => v !== 0)) {
-          rows.push({ hand: state.hand, scores: [...state.currentHand] });
-        }
-
-        let html = `
-          <table class="score-table">
-            <thead>
-              <tr>
-                <th>El</th>
-                <th>${state.players[0] || 'Takım 1'}</th>
-                <th>${state.players[1] || 'Takım 2'}</th>
-              </tr>
-            </thead>
-            <tbody>
-        `;
-
-        rows.forEach(r => {
-          html += `
-            <tr>
-              <td class="el-col">${r.hand}. El</td>
-              <td>${r.scores[0] || 0}</td>
-              <td>${r.scores[1] || 0}</td>
-            </tr>
-          `;
-        });
-
-        html += `</tbody></table>`;
-        list.innerHTML = html;
-      }
-
-      document.getElementById('history-modal').classList.add('active');
-    }
-
-    function closeHistory() {
-      document.getElementById('history-modal').classList.remove('active');
     }
 
     function resetApp() {
