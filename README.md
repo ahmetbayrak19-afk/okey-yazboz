@@ -1,26 +1,49 @@
-# Okey Yazboz
+# Okey Yazboz (Capacitor)
 
-Basit ve hızlı Okey skor tutma uygulaması.
-
-## Desteklenen Oyunlar
-- **101 Okey** (Tekli + Eşli)
-- **81 Okey** (Eşli)
+Okey 101 ve 81 için skor tutma uygulaması.
 
 ## Özellikler
-- +50 Ceza butonu (her taraf için)
-- Kafa butonu (-100) — birden fazla basılabilir
+- 101 Okey (Tekli + Eşli)
+- 81 Okey (Eşli)
+- +50 Ceza butonu
+- Kafa (-100) butonu
 - Özel puan girişi
-- Tüm el skorları geçmişi
-- Oyunu bitir + kazanan gösterimi
-- Mobil uyumlu, koyu tema
+- El geçmişi
+- Kazanan gösterimi
 
-## Nasıl Kullanılır?
-1. Oyun seç (101 veya 81)
-2. İsimleri gir
-3. +50 ve Kafa butonlarıyla puan tut
-4. İstediğinde "Oyunu Bitir" de
+## Kurulum (Capacitor - Android APK)
 
-## Link
-Repo: https://github.com/ahmetbayrak19-afk/okey-yazboz
+### 1. Gereksinimler
+- Node.js 18+
+- Android Studio
+- Java 17+
 
-GitHub Pages açarsan doğrudan tarayıcıda kullanabilirsin.
+### 2. Kurulum Adımları
+
+```bash
+# Repoyu klonla
+git clone https://github.com/ahmetbayrak19-afk/okey-yazboz.git
+cd okey-yazboz
+
+# Bağımlılıkları yükle
+npm install
+
+# Android platformunu ekle
+npx cap add android
+
+# Web dosyalarını senkronize et
+npx cap sync
+
+# Android Studio'yu aç
+npx cap open android
+```
+
+Android Studio açıldıktan sonra:
+1. Bir cihaz veya emülatör seç
+2. **Run** butonuna bas
+3. APK oluşturmak için: **Build → Build Bundle(s) / APK(s) → Build APK(s)**
+
+## Notlar
+- `www/` klasörü web dosyalarını içerir
+- `capacitor.config.ts` uygulama ayarlarını tutar
+- App ID: `com.okeyyazboz.app`
