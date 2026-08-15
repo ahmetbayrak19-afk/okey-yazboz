@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Okey Yazboz</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --primary: #3b82f6;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 12px;
+      line-height: 1.4;
+    }
+    .screen { display: none; max-width: 480px; margin: 0 auto; }
+    .screen.active { display: block; }
+    h1 { text-align: center; font-size: 1.6rem; margin: 16px 0; }
+    h2 { font-size: 1.2rem; margin-bottom: 12px; }
+    .btn {
+      display: block; width: 100%; padding: 14px; border: none; border-radius: 12px;
+      font-size: 1rem; font-weight: 600; cursor: pointer; margin-bottom: 10px;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-warning { background: var(--warning); color: #000; }
+    .btn-outline {
+      background: transparent; border: 2px solid var(--primary); color: var(--primary);
+    }
+    .btn-sm { padding: 10px; font-size: 0.9rem; }
+    input[type="text"] {
+      width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #334155;
+      background: var(--card); color: var(--text); font-size: 1rem; margin-bottom: 10px;
+    }
+    .card {
+      background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 12px;
+    }
+    .score-row {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 8px;
+    }
+    .score-value {
+      font-size: 2rem; font-weight: 700;
+    }
+    .team-name { font-size: 1.1rem; font-weight: 600; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+    .hand-info {
+      text-align: center; color: var(--muted); margin-bottom: 12px; font-size: 0.95rem;
+    }
+    .modal {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      z-index: 100; padding: 20px; overflow-y: auto;
+    }
+    .modal.active { display: flex; align-items: flex-start; justify-content: center; }
+    .modal-content {
+      background: var(--card); border-radius: 16px; padding: 20px; width: 100%; max-width: 420px;
+      margin-top: 40px;
+    }
+    .history-item {
+      padding: 10px 0; border-bottom: 1px solid #334155; font-size: 0.9rem;
+    }
+    .winner-box {
+      text-align: center; padding: 24px; background: linear-gradient(135deg, #166534, #14532d);
+      border-radius: 16px; margin: 20px 0;
+    }
+    .winner-box h2 { font-size: 1.5rem; margin-bottom: 8px; }
+    .flex-between { display: flex; justify-content: space-between; gap: 8px; }
+    .small { font-size: 0.85rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+  <!-- GİRİŞ EKRANI -->
+  <div id="screen-start" class="screen active">
+    <h1>🀄️ Okey Yazboz</h1>
+    <div class="card">
+      <h2>Oyun Seç</h2>
+      <button class="btn btn-primary" onclick="selectGame('101')">101 Okey</button>
+      <button class="btn btn-primary" onclick="selectGame('81')">81 Okey (Eşli)</button>
+    </div>
+  </div>
+
+  <!-- 101 MOD SEÇİMİ -->
+  <div id="screen-101-mode" class="screen">
+    <h1>101 Okey</h1>
+    <div class="card">
+      <h2>Mod Seç</h2>
+      <button class="btn btn-primary" onclick="selectMode('tekli')">Tekli (4 Oyuncu)</button>
+      <button class="btn btn-primary" onclick="selectMode('esli')">Eşli (2 Takım)</button>
+      <button class="btn btn-outline" onclick="goBack()">← Geri</button>
+    </div>
+  </div>
+
+  <!-- İSİM GİRİŞİ -->
+  <div id="screen-names" class="screen">
+    <h1 id="names-title">İsimleri Gir</h1>
+    <div class="card" id="names-form"></div>
+    <button class="btn btn-success" onclick="startGame()">Oyuna Başla</button>
+    <button class="btn btn-outline" onclick="goBack()">← Geri</button>
+  </div>
+
+  <!-- OYUN EKRANI -->
+  <div id="screen-game" class="screen">
+    <div class="hand-info">
+      <span id="hand-number">1. El</span> • <span id="game-type-label"></span>
+    </div>
+
+    <div id="scores-container"></div>
+
+    <div class="card">
+      <div class="flex-between">
+        <button class="btn btn-warning btn-sm" onclick="showHistory()">Tüm El Skorları</button>
+        <button class="btn btn-danger btn-sm" onclick="finishGame()">Oyunu Bitir</button>
+      </div>
+    </div>
+
+    <button class="btn btn-outline" onclick="newHand()">Yeni El / Devam</button>
+  </div>
+
+  <!-- OYUN SONU -->
+  <div id="screen-end" class="screen">
+    <h1>Oyun Bitti</h1>
+    <div class="winner-box" id="winner-box"></div>
+    <div class="card" id="final-scores"></div>
+    <button class="btn btn-primary" onclick="resetApp()">Yeni Oyun</button>
+  </div>
+
+  <!-- GEÇMİŞ MODAL -->
+  <div id="history-modal" class="modal">
+    <div class="modal-content">
+      <h2>Tüm El Skorları</h2>
+      <div id="history-list"></div>
+      <button class="btn btn-outline" style="margin-top:16px" onclick="closeHistory()">Kapat</button>
+    </div>
+  </div>
+
+  <script>
+    let state = {
+      game: null,      // '101' | '81'
+      mode: null,      // 'tekli' | 'esli'
+      players: [],     // isimler
+      scores: [],      // toplam skorlar
+      hand: 1,
+      history: []      // her elin detayı
+    };
+
+    function selectGame(game) {
+      state.game = game;
+      if (game === '81') {
+        state.mode = 'esli';
+        showScreen('screen-names');
+        renderNamesForm();
+      } else {
+        showScreen('screen-101-mode');
+      }
+    }
+
+    function selectMode(mode) {
+      state.mode = mode;
+      showScreen('screen-names');
+      renderNamesForm();
+    }
+
+    function renderNamesForm() {
+      const form = document.getElementById('names-form');
+      const title = document.getElementById('names-title');
+      form.innerHTML = '';
+
+      if (state.mode === 'esli') {
+        title.textContent = 'Takım İsimleri';
+        form.innerHTML = `
+          <label class="small">Takım 1</label>
+          <input type="text" id="name0" placeholder="Örn: Ahmet & Mehmet" value="Takım 1">
+          <label class="small">Takım 2</label>
+          <input type="text" id="name1" placeholder="Örn: Ali & Veli" value="Takım 2">
+        `;
+      } else {
+        title.textContent = 'Oyuncu İsimleri';
+        for (let i = 0; i < 4; i++) {
+          form.innerHTML += `
+            <label class="small">Oyuncu ${i+1}</label>
+            <input type="text" id="name${i}" placeholder="Oyuncu ${i+1}" value="Oyuncu ${i+1}">
+          `;
+        }
+      }
+    }
+
+    function startGame() {
+      const count = state.mode === 'esli' ? 2 : 4;
+      state.players = [];
+      state.scores = [];
+      for (let i = 0; i < count; i++) {
+        const val = document.getElementById('name' + i).value.trim() || `Takım/Oyuncu ${i+1}`;
+        state.players.push(val);
+        state.scores.push(0);
+      }
+      state.hand = 1;
+      state.history = [];
+      showScreen('screen-game');
+      renderGame();
+    }
+
+    function renderGame() {
+      document.getElementById('hand-number').textContent = state.hand + '. El';
+      document.getElementById('game-type-label').textContent =
+        state.game + (state.mode === 'esli' ? ' Eşli' : ' Tekli');
+
+      const container = document.getElementById('scores-container');
+      container.innerHTML = '';
+
+      state.players.forEach((name, i) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="score-row">
+            <div class="team-name">${name}</div>
+            <div class="score-value" id="score-${i}">${state.scores[i]}</div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-danger btn-sm" onclick="addPenalty(${i}, 50)">+50 Ceza</button>
+            <button class="btn btn-success btn-sm" onclick="addKafa(${i})">Kafa (-100)</button>
+          </div>
+          <div class="actions" style="margin-top:8px">
+            <button class="btn btn-outline btn-sm" onclick="addCustom(${i})">Özel Puan</button>
+            <button class="btn btn-outline btn-sm" onclick="undoLast(${i})">Geri Al</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function addPenalty(index, amount) {
+      state.scores[index] += amount;
+      saveHistory(`+${amount} ceza → ${state.players[index]}`);
+      updateScores();
+    }
+
+    function addKafa(index) {
+      state.scores[index] -= 100;
+      saveHistory(`Kafa (-100) → ${state.players[index]}`);
+      updateScores();
+    }
+
+    function addCustom(index) {
+      const val = prompt(`${state.players[index]} için puan gir (pozitif ceza, negatif ödül):`);
+      if (val === null || val === '') return;
+      const num = parseInt(val);
+      if (isNaN(num)) return alert('Geçerli sayı gir');
+      state.scores[index] += num;
+      saveHistory(`${num > 0 ? '+' : ''}${num} → ${state.players[index]}`);
+      updateScores();
+    }
+
+    function undoLast(index) {
+      // Basit geri alma yok, kullanıcı özel puan ile düzeltebilir
+      alert('Düzeltmek için "Özel Puan" butonunu kullan (negatif sayı girerek düşürebilirsin).');
+    }
+
+    function updateScores() {
+      state.scores.forEach((s, i) => {
+        document.getElementById('score-' + i).textContent = s;
+      });
+    }
+
+    function saveHistory(text) {
+      state.history.push({ hand: state.hand, text });
+    }
+
+    function newHand() {
+      state.hand++;
+      renderGame();
+    }
+
+    function finishGame() {
+      showScreen('screen-end');
+      const min = Math.min(...state.scores);
+      const winners = state.players.filter((_, i) => state.scores[i] === min);
+
+      document.getElementById('winner-box').innerHTML = `
+        <h2>🏆 Kazanan</h2>
+        <div style="font-size:1.4rem;font-weight:700">${winners.join(' & ')}</div>
+        <div class="small" style="margin-top:8px">${min} puan</div>
+      `;
+
+      let html = '<h2>Final Skorlar</h2>';
+      state.players.forEach((p, i) => {
+        html += `<div class="score-row"><span>${p}</span><strong>${state.scores[i]}</strong></div>`;
+      });
+      document.getElementById('final-scores').innerHTML = html;
+    }
+
+    function showHistory() {
+      const list = document.getElementById('history-list');
+      if (state.history.length === 0) {
+        list.innerHTML = '<p class="small">Henüz skor yok.</p>';
+      } else {
+        list.innerHTML = state.history.map(h =>
+          `<div class="history-item"><strong>${h.hand}. El:</strong> ${h.text}</div>`
+        ).join('');
+      }
+      document.getElementById('history-modal').classList.add('active');
+    }
+
+    function closeHistory() {
+      document.getElementById('history-modal').classList.remove('active');
+    }
+
+    function resetApp() {
+      state = { game: null, mode: null, players: [], scores: [], hand: 1, history: [] };
+      showScreen('screen-start');
+    }
+
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function goBack() {
+      if (state.game === '101' && document.getElementById('screen-names').classList.contains('active')) {
+        showScreen('screen-101-mode');
+      } else {
+        showScreen('screen-start');
+      }
+    }
+  </script>
+</body>
+</html>
