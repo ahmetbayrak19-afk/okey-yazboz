@@ -1,4 +1,4 @@
-# Okey Yazboz (Capacitor)
+# Okey Yazboz (Capacitor) 
 
 Okey 101 ve 81 için skor tutma uygulaması.
 
