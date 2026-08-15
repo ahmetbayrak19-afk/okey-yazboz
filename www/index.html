@@ -53,7 +53,11 @@
       background: var(--card); border-radius: 14px; padding: 14px; margin-bottom: 10px;
     }
     .hand-info {
-      text-align: center; color: var(--muted); margin-bottom: 10px; font-size: 0.95rem;
+      text-align: center;
+      margin-bottom: 14px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text);
     }
     .teams-row {
       display: flex;
@@ -189,9 +193,7 @@
   </div>
 
   <div id="screen-game" class="screen">
-    <div class="hand-info">
-      <span id="hand-number">1. El</span> • <span id="game-type-label"></span>
-    </div>
+    <div class="hand-info" id="hand-number">1. El</div>
 
     <div id="scores-container"></div>
 
@@ -231,8 +233,8 @@
       players: [],
       scores: [],
       hand: 1,
-      currentHand: [0, 0],   // bu el içinde eklenen net puanlar
-      handHistory: []       // [{scores: [t1, t2], hand: 1}, ...]
+      currentHand: [0, 0],
+      handHistory: []
     };
 
     function selectGame(game) {
@@ -294,8 +296,6 @@
 
     function renderGame() {
       document.getElementById('hand-number').textContent = state.hand + '. El';
-      document.getElementById('game-type-label').textContent =
-        state.game + (state.mode === 'esli' ? ' Eşli' : ' Tekli');
 
       const container = document.getElementById('scores-container');
       container.innerHTML = '';
@@ -321,7 +321,6 @@
 
         container.appendChild(row);
 
-        // Enter ile ekleme
         state.players.forEach((_, i) => {
           const input = document.getElementById('input-' + i);
           input.addEventListener('keydown', (e) => {
@@ -412,20 +411,17 @@
     }
 
     function newHand() {
-      // Mevcut elin skorunu kaydet
       state.handHistory.push({
         hand: state.hand,
         scores: [...state.currentHand]
       });
 
-      // Yeni el
       state.hand++;
       state.currentHand = new Array(state.players.length).fill(0);
       renderGame();
     }
 
     function finishGame() {
-      // Son el de kaydedilsin
       if (state.currentHand.some(v => v !== 0) || state.handHistory.length === 0) {
         state.handHistory.push({
           hand: state.hand,
@@ -456,7 +452,6 @@
       if (state.handHistory.length === 0 && state.currentHand.every(v => v === 0)) {
         list.innerHTML = '<p class="small">Henüz el oynanmadı.</p>';
       } else {
-        // Geçmiş + şu anki el
         let rows = [...state.handHistory];
         if (state.currentHand.some(v => v !== 0)) {
           rows.push({ hand: state.hand, scores: [...state.currentHand] });
@@ -484,10 +479,7 @@
           `;
         });
 
-        html += `
-            </tbody>
-          </table>
-        `;
+        html += `</tbody></table>`;
         list.innerHTML = html;
       }
 
