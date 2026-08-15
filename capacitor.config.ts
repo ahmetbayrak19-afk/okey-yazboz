@@ -1,18 +1,2 @@
-import type { CapacitorConfig } from '@capacitor/cli';
-
-const config: CapacitorConfig = {
-  appId: 'com.okeyyazboz.app',
-  appName: 'Okey Yazboz',
-  webDir: 'www',
-  server: {
-    androidScheme: 'https'
-  },
-  plugins: {
-    StatusBar: {
-      style: 'DARK',
-      backgroundColor: '#0f172a'
-    }
-  }
-};
-
-export default config;
+// Bu dosya artık kullanılmıyor.
+// capacitor.config.json kullanılıyor.
