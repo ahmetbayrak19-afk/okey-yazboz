@@ -101,17 +101,54 @@
       padding: 10px 4px;
       font-size: 0.82rem;
     }
+    .diff-box {
+      text-align: center;
+      padding: 14px;
+      background: var(--card);
+      border-radius: 14px;
+      margin-bottom: 12px;
+    }
+    .diff-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+    .diff-label {
+      font-size: 1rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
     .modal {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-      z-index: 100; padding: 20px; overflow-y: auto;
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+      z-index: 100; padding: 16px; overflow-y: auto;
     }
     .modal.active { display: flex; align-items: flex-start; justify-content: center; }
     .modal-content {
-      background: var(--card); border-radius: 16px; padding: 20px; width: 100%; max-width: 420px;
-      margin-top: 40px;
+      background: var(--card); border-radius: 16px; padding: 18px; width: 100%; max-width: 420px;
+      margin-top: 30px;
     }
-    .history-item {
-      padding: 10px 0; border-bottom: 1px solid #334155; font-size: 0.9rem;
+    .score-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    .score-table th, .score-table td {
+      padding: 10px 6px;
+      text-align: center;
+      border-bottom: 1px solid #334155;
+    }
+    .score-table th {
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .score-table td {
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+    .score-table .el-col {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 0.9rem;
     }
     .winner-box {
       text-align: center; padding: 24px; background: linear-gradient(135deg, #166534, #14532d);
@@ -158,6 +195,11 @@
 
     <div id="scores-container"></div>
 
+    <div class="diff-box" id="diff-box">
+      <div class="diff-value" id="diff-value">0</div>
+      <div class="diff-label" id="diff-label">Berabere</div>
+    </div>
+
     <div class="card">
       <div class="flex-between">
         <button class="btn btn-warning btn-sm" onclick="showHistory()">Tüm El Skorları</button>
@@ -189,7 +231,8 @@
       players: [],
       scores: [],
       hand: 1,
-      history: []
+      currentHand: [0, 0],   // bu el içinde eklenen net puanlar
+      handHistory: []       // [{scores: [t1, t2], hand: 1}, ...]
     };
 
     function selectGame(game) {
@@ -237,13 +280,14 @@
       const count = state.mode === 'esli' ? 2 : 4;
       state.players = [];
       state.scores = [];
+      state.currentHand = new Array(count).fill(0);
       for (let i = 0; i < count; i++) {
         const val = document.getElementById('name' + i).value.trim() || `Takım ${i+1}`;
         state.players.push(val);
         state.scores.push(0);
       }
       state.hand = 1;
-      state.history = [];
+      state.handHistory = [];
       showScreen('screen-game');
       renderGame();
     }
@@ -256,7 +300,6 @@
       const container = document.getElementById('scores-container');
       container.innerHTML = '';
 
-      // Eşli → yan yana 2 takım
       if (state.mode === 'esli') {
         const row = document.createElement('div');
         row.className = 'teams-row';
@@ -267,9 +310,8 @@
           card.innerHTML = `
             <div class="team-name">${name}</div>
             <div class="score-value" id="score-${i}">${state.scores[i]}</div>
-            <input type="number" class="score-input" id="input-${i}" placeholder="Puan gir" inputmode="numeric">
+            <input type="number" class="score-input" id="input-${i}" placeholder="Puan" inputmode="numeric">
             <div class="team-actions">
-              <button class="btn btn-danger btn-sm" onclick="addFromInput(${i})">Ekle</button>
               <button class="btn btn-danger btn-sm" onclick="addPenalty(${i}, 50)">+50</button>
               <button class="btn btn-success btn-sm" onclick="addKafa(${i})">Kafa</button>
             </div>
@@ -278,8 +320,18 @@
         });
 
         container.appendChild(row);
+
+        // Enter ile ekleme
+        state.players.forEach((_, i) => {
+          const input = document.getElementById('input-' + i);
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              addFromInput(i);
+            }
+          });
+        });
       } else {
-        // Tekli → alt alta
         state.players.forEach((name, i) => {
           const card = document.createElement('div');
           card.className = 'card';
@@ -288,38 +340,50 @@
               <div class="team-name">${name}</div>
               <div class="score-value" id="score-${i}">${state.scores[i]}</div>
             </div>
-            <input type="number" class="score-input" id="input-${i}" placeholder="Puan gir" inputmode="numeric">
+            <input type="number" class="score-input" id="input-${i}" placeholder="Puan" inputmode="numeric">
             <div class="team-actions">
-              <button class="btn btn-danger btn-sm" onclick="addFromInput(${i})">Ekle</button>
               <button class="btn btn-danger btn-sm" onclick="addPenalty(${i}, 50)">+50</button>
               <button class="btn btn-success btn-sm" onclick="addKafa(${i})">Kafa</button>
             </div>
           `;
           container.appendChild(card);
+
+          const input = document.getElementById('input-' + i);
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              addFromInput(i);
+            }
+          });
         });
       }
+
+      updateDiff();
     }
 
     function addFromInput(index) {
       const input = document.getElementById('input-' + index);
       const val = parseInt(input.value);
-      if (isNaN(val)) return alert('Geçerli sayı gir');
+      if (isNaN(val) || input.value === '') return;
       state.scores[index] += val;
-      saveHistory(`${val > 0 ? '+' : ''}${val} → ${state.players[index]}`);
+      state.currentHand[index] += val;
       input.value = '';
       updateScores();
+      updateDiff();
     }
 
     function addPenalty(index, amount) {
       state.scores[index] += amount;
-      saveHistory(`+${amount} ceza → ${state.players[index]}`);
+      state.currentHand[index] += amount;
       updateScores();
+      updateDiff();
     }
 
     function addKafa(index) {
       state.scores[index] -= 100;
-      saveHistory(`Kafa (-100) → ${state.players[index]}`);
+      state.currentHand[index] -= 100;
       updateScores();
+      updateDiff();
     }
 
     function updateScores() {
@@ -329,16 +393,46 @@
       });
     }
 
-    function saveHistory(text) {
-      state.history.push({ hand: state.hand, text });
+    function updateDiff() {
+      if (state.mode !== 'esli' || state.players.length < 2) return;
+
+      const diff = Math.abs(state.scores[0] - state.scores[1]);
+      const elVal = document.getElementById('diff-value');
+      const elLabel = document.getElementById('diff-label');
+
+      elVal.textContent = diff;
+
+      if (state.scores[0] < state.scores[1]) {
+        elLabel.textContent = state.players[0] + ' önde';
+      } else if (state.scores[1] < state.scores[0]) {
+        elLabel.textContent = state.players[1] + ' önde';
+      } else {
+        elLabel.textContent = 'Berabere';
+      }
     }
 
     function newHand() {
+      // Mevcut elin skorunu kaydet
+      state.handHistory.push({
+        hand: state.hand,
+        scores: [...state.currentHand]
+      });
+
+      // Yeni el
       state.hand++;
+      state.currentHand = new Array(state.players.length).fill(0);
       renderGame();
     }
 
     function finishGame() {
+      // Son el de kaydedilsin
+      if (state.currentHand.some(v => v !== 0) || state.handHistory.length === 0) {
+        state.handHistory.push({
+          hand: state.hand,
+          scores: [...state.currentHand]
+        });
+      }
+
       showScreen('screen-end');
       const min = Math.min(...state.scores);
       const winners = state.players.filter((_, i) => state.scores[i] === min);
@@ -358,13 +452,45 @@
 
     function showHistory() {
       const list = document.getElementById('history-list');
-      if (state.history.length === 0) {
-        list.innerHTML = '<p class="small">Henüz skor yok.</p>';
+
+      if (state.handHistory.length === 0 && state.currentHand.every(v => v === 0)) {
+        list.innerHTML = '<p class="small">Henüz el oynanmadı.</p>';
       } else {
-        list.innerHTML = state.history.map(h =>
-          `<div class="history-item"><strong>${h.hand}. El:</strong> ${h.text}</div>`
-        ).join('');
+        // Geçmiş + şu anki el
+        let rows = [...state.handHistory];
+        if (state.currentHand.some(v => v !== 0)) {
+          rows.push({ hand: state.hand, scores: [...state.currentHand] });
+        }
+
+        let html = `
+          <table class="score-table">
+            <thead>
+              <tr>
+                <th>El</th>
+                <th>${state.players[0] || 'Takım 1'}</th>
+                <th>${state.players[1] || 'Takım 2'}</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        rows.forEach(r => {
+          html += `
+            <tr>
+              <td class="el-col">${r.hand}. El</td>
+              <td>${r.scores[0] || 0}</td>
+              <td>${r.scores[1] || 0}</td>
+            </tr>
+          `;
+        });
+
+        html += `
+            </tbody>
+          </table>
+        `;
+        list.innerHTML = html;
       }
+
       document.getElementById('history-modal').classList.add('active');
     }
 
@@ -373,7 +499,10 @@
     }
 
     function resetApp() {
-      state = { game: null, mode: null, players: [], scores: [], hand: 1, history: [] };
+      state = {
+        game: null, mode: null, players: [], scores: [],
+        hand: 1, currentHand: [0, 0], handHistory: []
+      };
       showScreen('screen-start');
     }
 
