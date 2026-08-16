@@ -183,6 +183,24 @@
       border-bottom: 1px solid #334155;
       font-size: 0.9rem;
     }
+    .iddia-link {
+      display: block;
+      padding: 12px;
+      margin-bottom: 8px;
+      background: #0f172a;
+      border-radius: 10px;
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid #334155;
+    }
+    .iddia-link:active { opacity: 0.8; }
+    .iddia-detail {
+      display: none;
+      padding: 8px 4px 4px;
+    }
+    .iddia-detail.open { display: block; }
     .winner-box {
       text-align: center; padding: 24px; background: linear-gradient(135deg, #166534, #14532d);
       border-radius: 16px; margin: 20px 0;
@@ -245,7 +263,7 @@
     </div>
 
     <div class="iddia-box" id="game-iddia-box">
-      <h3 style="text-align:center;margin-bottom:8px;color:var(--muted)">İddialar</h3>
+      <h3 style="text-align:center;margin-bottom:8px;color:var(--muted)">Bu Takımların İddiaları</h3>
       <div id="game-iddia-list"></div>
     </div>
   </div>
@@ -268,7 +286,6 @@
       handHistory: []
     };
 
-    // İddiaları localStorage'dan yükle
     function loadIddialar() {
       try {
         return JSON.parse(localStorage.getItem('okey_iddialar') || '[]');
@@ -281,45 +298,92 @@
       localStorage.setItem('okey_iddialar', JSON.stringify(list));
     }
 
+    function getCurrentTeamsKey() {
+      if (state.players.length < 2) return null;
+      // Sıralı tut ki A vs B ile B vs A aynı olsun
+      const a = state.players[0];
+      const b = state.players[1];
+      return [a, b].sort().join(' vs ');
+    }
+
+    function normalizeTeamsKey(key) {
+      if (!key || key === 'Genel') return key;
+      const parts = key.split(' vs ').map(s => s.trim());
+      if (parts.length === 2) return parts.sort().join(' vs ');
+      return key;
+    }
+
     function renderIddialar() {
       const list = loadIddialar();
       const startEl = document.getElementById('start-iddia-list');
       const gameEl = document.getElementById('game-iddia-list');
 
-      if (list.length === 0) {
-        if (startEl) startEl.innerHTML = '<p class="small" style="text-align:center">Henüz iddia yok</p>';
-        if (gameEl) gameEl.innerHTML = '<p class="small" style="text-align:center">Henüz iddia yok</p>';
-        return;
+      // --- Ana sayfa: sadece takım isimleri (tıklanabilir) ---
+      if (startEl) {
+        if (list.length === 0) {
+          startEl.innerHTML = '<p class="small" style="text-align:center">Henüz iddia yok</p>';
+        } else {
+          const grouped = {};
+          list.forEach((item, idx) => {
+            const key = normalizeTeamsKey(item.teams || 'Genel');
+            if (!grouped[key]) grouped[key] = [];
+            grouped[key].push({ ...item, idx });
+          });
+
+          let html = '';
+          Object.keys(grouped).forEach((key, gIdx) => {
+            const id = 'iddia-group-' + gIdx;
+            html += `
+              <div class="iddia-link" onclick="toggleIddiaGroup('${id}')">${key} (${grouped[key].length})</div>
+              <div class="iddia-detail" id="${id}">
+            `;
+            grouped[key].forEach(item => {
+              html += `<div class="iddia-item">${item.text} <span class="small">(${item.date || ''})</span> <button class="del-btn" onclick="event.stopPropagation();deleteIddia(${item.idx})">sil</button></div>`;
+            });
+            html += `</div>`;
+          });
+          startEl.innerHTML = html;
+        }
       }
 
-      // Takım isimlerine göre grupla
-      const grouped = {};
-      list.forEach((item, idx) => {
-        const key = item.teams || 'Genel';
-        if (!grouped[key]) grouped[key] = [];
-        grouped[key].push({ ...item, idx });
-      });
+      // --- Oyun içi: sadece mevcut iki takımın iddiaları ---
+      if (gameEl) {
+        const currentKey = getCurrentTeamsKey();
+        if (!currentKey) {
+          gameEl.innerHTML = '<p class="small" style="text-align:center">-</p>';
+          return;
+        }
 
-      let html = '';
-      Object.keys(grouped).forEach(key => {
-        html += `<div style="margin-bottom:10px"><strong style="color:var(--primary)">${key}</strong>`;
-        grouped[key].forEach(item => {
-          html += `<div class="iddia-item">${item.text} <button class="del-btn" onclick="deleteIddia(${item.idx})">sil</button></div>`;
+        const filtered = [];
+        list.forEach((item, idx) => {
+          const key = normalizeTeamsKey(item.teams || '');
+          if (key === currentKey) {
+            filtered.push({ ...item, idx });
+          }
         });
-        html += `</div>`;
-      });
 
-      if (startEl) startEl.innerHTML = html;
-      if (gameEl) gameEl.innerHTML = html;
+        if (filtered.length === 0) {
+          gameEl.innerHTML = '<p class="small" style="text-align:center">Bu takımlar arasında iddia yok</p>';
+        } else {
+          let html = '';
+          filtered.forEach(item => {
+            html += `<div class="iddia-item">${item.text} <span class="small">(${item.date || ''})</span> <button class="del-btn" onclick="deleteIddia(${item.idx})">sil</button></div>`;
+          });
+          gameEl.innerHTML = html;
+        }
+      }
+    }
+
+    function toggleIddiaGroup(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('open');
     }
 
     function addIddia() {
       const text = prompt('İddia nedir? (örnek: kaybeden kebap ısmarlayacak)');
       if (!text || !text.trim()) return;
 
-      const teams = state.players.length >= 2
-        ? state.players[0] + ' vs ' + state.players[1]
-        : 'Genel';
+      const teams = getCurrentTeamsKey() || 'Genel';
 
       const list = loadIddialar();
       list.push({
@@ -426,7 +490,6 @@
 
         container.appendChild(row);
 
-        // Enter basınca HER İKİ inputu da kaydet
         state.players.forEach((_, i) => {
           const input = document.getElementById('input-' + i);
           input.addEventListener('keydown', (e) => {
@@ -466,7 +529,6 @@
       updateDiff();
     }
 
-    // Her iki (veya tüm) inputtaki değerleri kaydet
     function saveAllInputs() {
       state.players.forEach((_, i) => {
         const input = document.getElementById('input-' + i);
@@ -522,7 +584,6 @@
       if (!confirm((idx + 1) + '. eli silmek istiyor musun?')) return;
 
       const removed = state.handHistory[idx];
-      // Toplam skordan çıkar
       removed.scores.forEach((s, i) => {
         state.scores[i] -= (s || 0);
       });
@@ -561,7 +622,6 @@
       document.getElementById('diff-value').textContent = diff;
 
       const box = document.getElementById('diff-box');
-      // 10. ve 11. elde kırmızı arka plan
       if (state.hand === 10 || state.hand === 11) {
         box.classList.add('warning-red');
       } else {
@@ -578,7 +638,6 @@
     }
 
     function newHand() {
-      // Önce açık kalan inputları da kaydet
       saveAllInputs();
 
       state.handHistory.push({
@@ -642,7 +701,6 @@
       }
     }
 
-    // Sayfa açılınca iddiaları göster
     renderIddialar();
   </script>
 </body>
