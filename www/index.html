@@ -3,21 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#0f172a">
+  <meta name="theme-color" content="#111111">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Okey Yazboz">
   <title>Okey Yazboz</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #1e293b;
-      --primary: #3b82f6;
-      --success: #22c55e;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --text: #f1f5f9;
-      --muted: #94a3b8;
+      --bg: #111111;
+      --card: #1c1c1c;
+      --row: #242424;
+      --input: #2c2c2c;
+      --line: #333;
+      --text: #f2f2f2;
+      --muted: #9a9a9a;
+      --green: #2e7d4f;
+      --red: #b44545;
+      --blue: #2b3a4a;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -25,203 +27,92 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding: 12px;
-      line-height: 1.4;
-    }
-    .screen { display: none; max-width: 520px; margin: 0 auto; }
-    .screen.active { display: block; }
-    h1 { text-align: center; font-size: 1.5rem; margin: 12px 0; }
-    h2 { font-size: 1.15rem; margin-bottom: 10px; }
-    .btn {
-      display: block; width: 100%; padding: 13px; border: none; border-radius: 12px;
-      font-size: 1rem; font-weight: 600; cursor: pointer; margin-bottom: 8px;
-    }
-    .btn:active { transform: scale(0.97); }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-success { background: var(--success); color: white; }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-warning { background: var(--warning); color: #000; }
-    .btn-outline {
-      background: transparent; border: 2px solid var(--primary); color: var(--primary);
-    }
-    .btn-sm { padding: 9px 6px; font-size: 0.85rem; }
-    input[type="text"], input[type="number"] {
-      width: 100%; padding: 11px; border-radius: 10px; border: 2px solid #334155;
-      background: var(--card); color: var(--text); font-size: 1rem; margin-bottom: 8px;
-    }
-    .card {
-      background: var(--card); border-radius: 14px; padding: 14px; margin-bottom: 10px;
-    }
-    .hand-info {
-      text-align: center;
-      margin-bottom: 14px;
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-    .teams-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-    .team-card {
-      flex: 1;
-      background: var(--card);
-      border-radius: 14px;
-      padding: 12px 10px;
-      text-align: center;
-    }
-    .team-name {
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 6px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .score-value {
-      font-size: 2.1rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .score-input {
-      width: 100%;
-      padding: 10px 6px;
-      border-radius: 10px;
-      border: 2px solid #334155;
-      background: #0f172a;
-      color: var(--text);
-      font-size: 1.1rem;
-      text-align: center;
-      margin-bottom: 8px;
-    }
-    .team-actions {
-      display: flex;
-      gap: 6px;
-    }
-    .team-actions .btn {
-      flex: 1;
-      margin-bottom: 0;
-      padding: 10px 4px;
-      font-size: 0.82rem;
-    }
-    .diff-box {
-      text-align: center;
       padding: 14px;
-      background: var(--card);
-      border-radius: 14px;
-      margin-bottom: 12px;
-      transition: background 0.3s;
     }
-    .diff-box.warning-red {
-      background: #7f1d1d;
+    .screen { display: none; max-width: 480px; margin: 0 auto; }
+    .screen.active { display: block; }
+    h1 { text-align: center; font-size: 1.45rem; margin: 10px 0 16px; font-weight: 700; }
+    h2 { font-size: 1.05rem; margin-bottom: 10px; }
+    .btn {
+      display: block; width: 100%; padding: 13px; border: none; border-radius: 10px;
+      font-size: 1rem; font-weight: 600; cursor: pointer; margin-bottom: 8px; color: #fff;
     }
-    .diff-value {
-      font-size: 1.8rem;
+    .btn:active { opacity: 0.85; }
+    .btn-green { background: var(--green); }
+    .btn-red { background: var(--red); }
+    .btn-dark { background: #2a2a2a; color: var(--muted); }
+    .btn-outline { background: transparent; border: 1px solid #444; color: var(--text); }
+    .btn-half { width: calc(50% - 4px); margin-bottom: 8px; }
+    .row-btns { display: flex; gap: 8px; }
+    input[type="text"], input[type="number"] {
+      width: 100%; padding: 11px; border-radius: 10px; border: 1px solid #333;
+      background: var(--input); color: var(--text); font-size: 1rem; margin-bottom: 8px;
+    }
+    .card { background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+    .small { font-size: 0.85rem; color: var(--muted); }
+    .names-top {
+      display: flex; gap: 8px; margin-bottom: 10px;
+    }
+    .name-pill {
+      flex: 1; background: var(--row); border-radius: 10px; padding: 10px 8px;
+      text-align: center; font-weight: 600; font-size: 0.95rem;
+    }
+    .hand-row {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--row); border-radius: 10px; padding: 8px;
+      margin-bottom: 7px;
+    }
+    .hand-row.late { background: #3a1e1e; }
+    .hand-label {
+      width: 48px; flex-shrink: 0; color: var(--muted); font-size: 0.9rem; font-weight: 600;
+    }
+    .hand-input {
+      flex: 1; margin: 0; text-align: center; padding: 9px 4px;
+      background: #1a1a1a; border: 1px solid #333; border-radius: 8px;
+      color: var(--text); font-size: 1.05rem; font-weight: 600;
+    }
+    .rank-box {
+      background: var(--blue);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+      margin: 10px 0;
+    }
+    .rank-box h3 { margin-bottom: 8px; font-size: 1.05rem; }
+    .rank-line { font-size: 0.98rem; margin: 3px 0; }
+    .diff-line {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      font-size: 1.15rem;
       font-weight: 700;
     }
-    .diff-label {
-      font-size: 1rem;
-      color: var(--muted);
-      margin-top: 4px;
-    }
-    .diff-box.warning-red .diff-label {
-      color: #fecaca;
-    }
-    .history-box {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 12px;
-      margin-top: 12px;
-      margin-bottom: 10px;
-    }
-    .history-box h3 {
-      font-size: 0.95rem;
-      color: var(--muted);
-      margin-bottom: 8px;
-      text-align: center;
-    }
-    .score-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    .score-table th, .score-table td {
-      padding: 8px 4px;
-      text-align: center;
-      border-bottom: 1px solid #334155;
-    }
-    .score-table th {
-      color: var(--muted);
-      font-size: 0.8rem;
-      font-weight: 600;
-    }
-    .score-table td {
-      font-size: 1rem;
-      font-weight: 600;
-    }
-    .score-table .el-col {
-      color: var(--muted);
-      font-weight: 500;
-      font-size: 0.85rem;
-    }
-    .del-btn {
-      background: transparent;
-      border: none;
-      color: #f87171;
-      font-size: 0.85rem;
-      cursor: pointer;
-      padding: 4px 8px;
-    }
-    .iddia-box {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 12px;
-      margin-bottom: 10px;
-    }
-    .iddia-item {
-      padding: 8px 0;
-      border-bottom: 1px solid #334155;
-      font-size: 0.9rem;
-    }
+    .diff-sub { font-size: 0.9rem; color: #c9d6e0; font-weight: 500; margin-top: 3px; }
+    .iddia-box { background: var(--card); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+    .iddia-item { padding: 8px 0; border-bottom: 1px solid #333; font-size: 0.9rem; }
     .iddia-link {
-      display: block;
-      padding: 12px;
-      margin-bottom: 8px;
-      background: #0f172a;
-      border-radius: 10px;
-      color: var(--primary);
-      font-weight: 600;
-      text-decoration: none;
-      cursor: pointer;
-      border: 1px solid #334155;
+      display: block; padding: 12px; margin-bottom: 8px; background: #1a1a1a;
+      border-radius: 10px; color: #8ab4ff; font-weight: 600; cursor: pointer; border: 1px solid #333;
     }
-    .iddia-link:active { opacity: 0.8; }
-    .iddia-detail {
-      display: none;
-      padding: 8px 4px 4px;
-    }
+    .iddia-detail { display: none; padding: 8px 4px 4px; }
     .iddia-detail.open { display: block; }
+    .del-btn { background: none; border: none; color: #e08080; font-size: 0.85rem; cursor: pointer; padding: 4px 8px; }
     .winner-box {
-      text-align: center; padding: 24px; background: linear-gradient(135deg, #166534, #14532d);
-      border-radius: 16px; margin: 20px 0;
+      text-align: center; padding: 22px; background: #1e3a2a; border-radius: 12px; margin: 16px 0;
     }
-    .winner-box h2 { font-size: 1.4rem; margin-bottom: 8px; }
-    .flex-between { display: flex; justify-content: space-between; gap: 8px; }
-    .small { font-size: 0.85rem; color: var(--muted); }
-    .score-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
   </style>
 </head>
 <body>
 
   <div id="screen-start" class="screen active">
-    <h1>🀄️ Okey Yazboz</h1>
+    <h1>Okey Yazboz</h1>
     <div class="card">
       <h2>Oyun Seç</h2>
-      <button class="btn btn-primary" onclick="selectGame('101')">101 Okey</button>
-      <button class="btn btn-primary" onclick="selectGame('81')">81 Okey (Eşli)</button>
+      <button class="btn btn-green" onclick="selectGame('101')">101 Okey</button>
+      <button class="btn btn-green" onclick="selectGame('81')">81 Okey (Eşli)</button>
     </div>
-    <div class="iddia-box" id="start-iddia-box">
-      <h3 style="text-align:center;margin-bottom:8px;color:var(--muted)">Kayıtlı İddialar</h3>
+    <div class="iddia-box">
+      <h3 style="text-align:center;margin-bottom:8px;color:var(--muted);font-size:0.95rem">Kayıtlı İddialar</h3>
       <div id="start-iddia-list"></div>
     </div>
   </div>
@@ -230,8 +121,8 @@
     <h1>101 Okey</h1>
     <div class="card">
       <h2>Mod Seç</h2>
-      <button class="btn btn-primary" onclick="selectMode('tekli')">Tekli (4 Oyuncu)</button>
-      <button class="btn btn-primary" onclick="selectMode('esli')">Eşli (2 Takım)</button>
+      <button class="btn btn-green" onclick="selectMode('tekli')">Tekli (4 Oyuncu)</button>
+      <button class="btn btn-green" onclick="selectMode('esli')">Eşli (2 Takım)</button>
       <button class="btn btn-outline" onclick="goBack()">← Geri</button>
     </div>
   </div>
@@ -239,31 +130,37 @@
   <div id="screen-names" class="screen">
     <h1 id="names-title">İsimleri Gir</h1>
     <div class="card" id="names-form"></div>
-    <button class="btn btn-success" onclick="startGame()">Oyuna Başla</button>
+    <button class="btn btn-green" onclick="startGame()">Oyuna Başla</button>
     <button class="btn btn-outline" onclick="goBack()">← Geri</button>
   </div>
 
   <div id="screen-game" class="screen">
-    <div class="hand-info" id="hand-number">1. El</div>
-
-    <div id="scores-container"></div>
-
-    <div class="diff-box" id="diff-box">
-      <div class="diff-value" id="diff-value">0</div>
-      <div class="diff-label" id="diff-label">Berabere</div>
+    <h1>Takımlı Oyun</h1>
+    <div class="names-top">
+      <div class="name-pill" id="name-pill-0">Takım 1</div>
+      <div class="name-pill" id="name-pill-1">Takım 2</div>
     </div>
-
-    <button class="btn btn-outline" onclick="newHand()">Yeni El / Devam</button>
-    <button class="btn btn-warning" onclick="addIddia()">İddia Kaydet</button>
-    <button class="btn btn-danger" onclick="finishGame()">Oyunu Bitir</button>
-
-    <div class="history-box" id="history-box">
-      <h3>El Skorları</h3>
-      <div id="history-list"></div>
+    <div id="hands-list"></div>
+    <button class="btn btn-green" onclick="addHand()">+ Yeni El</button>
+    <div class="row-btns">
+      <button class="btn btn-red btn-half" id="btn-ceza-0" onclick="quickAdd(0, 50)">+50</button>
+      <button class="btn btn-red btn-half" id="btn-ceza-1" onclick="quickAdd(1, 50)">+50</button>
     </div>
-
-    <div class="iddia-box" id="game-iddia-box">
-      <h3 style="text-align:center;margin-bottom:8px;color:var(--muted)">Bu Takımların İddiaları</h3>
+    <div class="row-btns">
+      <button class="btn btn-green btn-half" id="btn-kafa-0" onclick="quickAdd(0, -100)">Kafa</button>
+      <button class="btn btn-green btn-half" id="btn-kafa-1" onclick="quickAdd(1, -100)">Kafa</button>
+    </div>
+    <div class="rank-box" id="rank-box">
+      <h3>Sıralama</h3>
+      <div id="rank-list"></div>
+      <div class="diff-line" id="diff-line">Fark: 0</div>
+      <div class="diff-sub" id="diff-sub">Berabere</div>
+    </div>
+    <button class="btn btn-outline" onclick="addIddia()">İddia Kaydet</button>
+    <button class="btn btn-red" onclick="finishGame()">Oyunu Bitir</button>
+    <button class="btn btn-dark" onclick="resetApp()">Oyunu Sıfırla</button>
+    <div class="iddia-box">
+      <h3 style="text-align:center;margin-bottom:8px;color:var(--muted);font-size:0.95rem">Bu Takımların İddiaları</h3>
       <div id="game-iddia-list"></div>
     </div>
   </div>
@@ -272,7 +169,7 @@
     <h1>Oyun Bitti</h1>
     <div class="winner-box" id="winner-box"></div>
     <div class="card" id="final-scores"></div>
-    <button class="btn btn-primary" onclick="resetApp()">Yeni Oyun</button>
+    <button class="btn btn-green" onclick="resetApp()">Yeni Oyun</button>
   </div>
 
   <script>
@@ -280,37 +177,37 @@
       game: null,
       mode: null,
       players: [],
-      scores: [],
-      hand: 1,
-      currentHand: [0, 0],
-      handHistory: []
+      hands: []
     };
 
-    function loadIddialar() {
-      try {
-        return JSON.parse(localStorage.getItem('okey_iddialar') || '[]');
-      } catch {
-        return [];
-      }
+    function emptyHand() {
+      return state.mode === 'esli' ? [0, 0] : [0, 0, 0, 0];
     }
 
+    function loadIddialar() {
+      try { return JSON.parse(localStorage.getItem('okey_iddialar') || '[]'); }
+      catch { return []; }
+    }
     function saveIddialar(list) {
       localStorage.setItem('okey_iddialar', JSON.stringify(list));
     }
-
     function getCurrentTeamsKey() {
       if (state.players.length < 2) return null;
-      // Sıralı tut ki A vs B ile B vs A aynı olsun
-      const a = state.players[0];
-      const b = state.players[1];
-      return [a, b].sort().join(' vs ');
+      return [state.players[0], state.players[1]].sort().join(' vs ');
     }
-
     function normalizeTeamsKey(key) {
       if (!key || key === 'Genel') return key;
       const parts = key.split(' vs ').map(s => s.trim());
-      if (parts.length === 2) return parts.sort().join(' vs ');
-      return key;
+      return parts.length === 2 ? parts.sort().join(' vs ') : key;
+    }
+
+    function totals() {
+      const n = state.players.length;
+      const t = new Array(n).fill(0);
+      state.hands.forEach(h => {
+        for (let i = 0; i < n; i++) t[i] += Number(h[i] || 0);
+      });
+      return t;
     }
 
     function renderIddialar() {
@@ -318,9 +215,8 @@
       const startEl = document.getElementById('start-iddia-list');
       const gameEl = document.getElementById('game-iddia-list');
 
-      // --- Ana sayfa: sadece takım isimleri (tıklanabilir) ---
       if (startEl) {
-        if (list.length === 0) {
+        if (!list.length) {
           startEl.innerHTML = '<p class="small" style="text-align:center">Henüz iddia yok</p>';
         } else {
           const grouped = {};
@@ -329,47 +225,33 @@
             if (!grouped[key]) grouped[key] = [];
             grouped[key].push({ ...item, idx });
           });
-
           let html = '';
           Object.keys(grouped).forEach((key, gIdx) => {
             const id = 'iddia-group-' + gIdx;
-            html += `
-              <div class="iddia-link" onclick="toggleIddiaGroup('${id}')">${key} (${grouped[key].length})</div>
-              <div class="iddia-detail" id="${id}">
-            `;
+            html += `<div class="iddia-link" onclick="toggleIddiaGroup('${id}')">${key} (${grouped[key].length})</div><div class="iddia-detail" id="${id}">`;
             grouped[key].forEach(item => {
               html += `<div class="iddia-item">${item.text} <span class="small">(${item.date || ''})</span> <button class="del-btn" onclick="event.stopPropagation();deleteIddia(${item.idx})">sil</button></div>`;
             });
-            html += `</div>`;
+            html += '</div>';
           });
           startEl.innerHTML = html;
         }
       }
 
-      // --- Oyun içi: sadece mevcut iki takımın iddiaları ---
       if (gameEl) {
         const currentKey = getCurrentTeamsKey();
         if (!currentKey) {
           gameEl.innerHTML = '<p class="small" style="text-align:center">-</p>';
           return;
         }
-
-        const filtered = [];
-        list.forEach((item, idx) => {
-          const key = normalizeTeamsKey(item.teams || '');
-          if (key === currentKey) {
-            filtered.push({ ...item, idx });
-          }
-        });
-
-        if (filtered.length === 0) {
+        const filtered = list.map((item, idx) => ({ ...item, idx }))
+          .filter(item => normalizeTeamsKey(item.teams || '') === currentKey);
+        if (!filtered.length) {
           gameEl.innerHTML = '<p class="small" style="text-align:center">Bu takımlar arasında iddia yok</p>';
         } else {
-          let html = '';
-          filtered.forEach(item => {
-            html += `<div class="iddia-item">${item.text} <span class="small">(${item.date || ''})</span> <button class="del-btn" onclick="deleteIddia(${item.idx})">sil</button></div>`;
-          });
-          gameEl.innerHTML = html;
+          gameEl.innerHTML = filtered.map(item =>
+            `<div class="iddia-item">${item.text} <span class="small">(${item.date || ''})</span> <button class="del-btn" onclick="deleteIddia(${item.idx})">sil</button></div>`
+          ).join('');
         }
       }
     }
@@ -378,24 +260,14 @@
       const el = document.getElementById(id);
       if (el) el.classList.toggle('open');
     }
-
     function addIddia() {
       const text = prompt('İddia nedir? (örnek: kaybeden kebap ısmarlayacak)');
       if (!text || !text.trim()) return;
-
-      const teams = getCurrentTeamsKey() || 'Genel';
-
       const list = loadIddialar();
-      list.push({
-        text: text.trim(),
-        teams: teams,
-        date: new Date().toLocaleDateString('tr-TR')
-      });
+      list.push({ text: text.trim(), teams: getCurrentTeamsKey() || 'Genel', date: new Date().toLocaleDateString('tr-TR') });
       saveIddialar(list);
       renderIddialar();
-      alert('İddia kaydedildi');
     }
-
     function deleteIddia(idx) {
       if (!confirm('Bu iddiayı silmek istiyor musun?')) return;
       const list = loadIddialar();
@@ -414,33 +286,27 @@
         showScreen('screen-101-mode');
       }
     }
-
     function selectMode(mode) {
       state.mode = mode;
       showScreen('screen-names');
       renderNamesForm();
     }
-
     function renderNamesForm() {
       const form = document.getElementById('names-form');
       const title = document.getElementById('names-title');
-      form.innerHTML = '';
-
       if (state.mode === 'esli') {
         title.textContent = 'Takım İsimleri';
         form.innerHTML = `
           <label class="small">Sol Takım</label>
-          <input type="text" id="name0" placeholder="Örn: Ahmet & Mehmet" value="Takım 1">
+          <input type="text" id="name0" placeholder="Örn: Merve" value="Takım 1">
           <label class="small">Sağ Takım</label>
-          <input type="text" id="name1" placeholder="Örn: Ali & Veli" value="Takım 2">
+          <input type="text" id="name1" placeholder="Örn: Ahmet" value="Takım 2">
         `;
       } else {
         title.textContent = 'Oyuncu İsimleri';
+        form.innerHTML = '';
         for (let i = 0; i < 4; i++) {
-          form.innerHTML += `
-            <label class="small">Oyuncu ${i+1}</label>
-            <input type="text" id="name${i}" placeholder="Oyuncu ${i+1}" value="Oyuncu ${i+1}">
-          `;
+          form.innerHTML += `<label class="small">Oyuncu ${i+1}</label><input type="text" id="name${i}" value="Oyuncu ${i+1}">`;
         }
       }
     }
@@ -448,250 +314,102 @@
     function startGame() {
       const count = state.mode === 'esli' ? 2 : 4;
       state.players = [];
-      state.scores = [];
-      state.currentHand = new Array(count).fill(0);
       for (let i = 0; i < count; i++) {
-        const val = document.getElementById('name' + i).value.trim() || `Takım ${i+1}`;
-        state.players.push(val);
-        state.scores.push(0);
+        state.players.push((document.getElementById('name' + i).value.trim()) || ('Takım ' + (i + 1)));
       }
-      state.hand = 1;
-      state.handHistory = [];
+      state.hands = [];
+      for (let i = 0; i < 11; i++) state.hands.push(emptyHand());
       showScreen('screen-game');
       renderGame();
-      renderHistory();
       renderIddialar();
     }
 
     function renderGame() {
-      document.getElementById('hand-number').textContent = state.hand + '. El';
+      if (state.players.length >= 2) {
+        document.getElementById('name-pill-0').textContent = state.players[0];
+        document.getElementById('name-pill-1').textContent = state.players[1];
+        document.getElementById('btn-ceza-0').textContent = '+50 ' + state.players[0];
+        document.getElementById('btn-ceza-1').textContent = '+50 ' + state.players[1];
+        document.getElementById('btn-kafa-0').textContent = 'Kafa ' + state.players[0];
+        document.getElementById('btn-kafa-1').textContent = 'Kafa ' + state.players[1];
+      }
 
-      const container = document.getElementById('scores-container');
-      container.innerHTML = '';
-
-      if (state.mode === 'esli') {
+      const list = document.getElementById('hands-list');
+      list.innerHTML = '';
+      state.hands.forEach((hand, hi) => {
         const row = document.createElement('div');
-        row.className = 'teams-row';
-
-        state.players.forEach((name, i) => {
-          const card = document.createElement('div');
-          card.className = 'team-card';
-          card.innerHTML = `
-            <div class="team-name">${name}</div>
-            <div class="score-value" id="score-${i}">${state.scores[i]}</div>
-            <input type="number" class="score-input" id="input-${i}" placeholder="Puan" inputmode="numeric">
-            <div class="team-actions">
-              <button class="btn btn-danger btn-sm" onclick="addPenalty(${i}, 50)">+50</button>
-              <button class="btn btn-success btn-sm" onclick="addKafa(${i})">Kafa</button>
-            </div>
-          `;
-          row.appendChild(card);
-        });
-
-        container.appendChild(row);
-
-        state.players.forEach((_, i) => {
-          const input = document.getElementById('input-' + i);
-          input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              saveAllInputs();
-            }
-          });
-        });
-      } else {
-        state.players.forEach((name, i) => {
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.innerHTML = `
-            <div class="score-row">
-              <div class="team-name">${name}</div>
-              <div class="score-value" id="score-${i}">${state.scores[i]}</div>
-            </div>
-            <input type="number" class="score-input" id="input-${i}" placeholder="Puan" inputmode="numeric">
-            <div class="team-actions">
-              <button class="btn btn-danger btn-sm" onclick="addPenalty(${i}, 50)">+50</button>
-              <button class="btn btn-success btn-sm" onclick="addKafa(${i})">Kafa</button>
-            </div>
-          `;
-          container.appendChild(card);
-
-          const input = document.getElementById('input-' + i);
-          input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              saveAllInputs();
-            }
-          });
-        });
-      }
-
-      updateDiff();
-    }
-
-    function saveAllInputs() {
-      state.players.forEach((_, i) => {
-        const input = document.getElementById('input-' + i);
-        if (!input) return;
-        const val = parseInt(input.value);
-        if (!isNaN(val) && input.value !== '') {
-          state.scores[i] += val;
-          state.currentHand[i] += val;
-          input.value = '';
+        row.className = 'hand-row' + (hi + 1 >= 10 ? ' late' : '');
+        let html = `<div class="hand-label">${hi + 1}.</div>`;
+        const cols = state.mode === 'esli' ? 2 : Math.min(2, state.players.length);
+        for (let i = 0; i < cols; i++) {
+          html += `<input type="number" class="hand-input" inputmode="numeric" value="${hand[i] || 0}" oninput="setHandScore(${hi}, ${i}, this.value)">`;
         }
+        row.innerHTML = html;
+        list.appendChild(row);
       });
-      updateScores();
-      updateDiff();
+      updateRank();
     }
 
-    function renderHistory() {
-      const list = document.getElementById('history-list');
-
-      if (state.handHistory.length === 0) {
-        list.innerHTML = '<p class="small" style="text-align:center">Henüz el yok</p>';
-        return;
-      }
-
-      let html = `
-        <table class="score-table">
-          <thead>
-            <tr>
-              <th>El</th>
-              <th>${state.players[0] || 'Takım 1'}</th>
-              <th>${state.players[1] || 'Takım 2'}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-      `;
-
-      state.handHistory.forEach((r, idx) => {
-        html += `
-          <tr>
-            <td class="el-col">${r.hand}. El</td>
-            <td>${r.scores[0] || 0}</td>
-            <td>${r.scores[1] || 0}</td>
-            <td><button class="del-btn" onclick="deleteHand(${idx})">sil</button></td>
-          </tr>
-        `;
-      });
-
-      html += `</tbody></table>`;
-      list.innerHTML = html;
+    function setHandScore(hi, ti, val) {
+      const n = parseInt(val);
+      state.hands[hi][ti] = isNaN(n) ? 0 : n;
+      updateRank();
     }
 
-    function deleteHand(idx) {
-      if (!confirm((idx + 1) + '. eli silmek istiyor musun?')) return;
-
-      const removed = state.handHistory[idx];
-      removed.scores.forEach((s, i) => {
-        state.scores[i] -= (s || 0);
-      });
-
-      state.handHistory.splice(idx, 1);
-      updateScores();
-      updateDiff();
-      renderHistory();
-    }
-
-    function addPenalty(index, amount) {
-      state.scores[index] += amount;
-      state.currentHand[index] += amount;
-      updateScores();
-      updateDiff();
-    }
-
-    function addKafa(index) {
-      state.scores[index] -= 100;
-      state.currentHand[index] -= 100;
-      updateScores();
-      updateDiff();
-    }
-
-    function updateScores() {
-      state.scores.forEach((s, i) => {
-        const el = document.getElementById('score-' + i);
-        if (el) el.textContent = s;
-      });
-    }
-
-    function updateDiff() {
-      if (state.mode !== 'esli' || state.players.length < 2) return;
-
-      const diff = Math.abs(state.scores[0] - state.scores[1]);
-      document.getElementById('diff-value').textContent = diff;
-
-      const box = document.getElementById('diff-box');
-      if (state.hand === 10 || state.hand === 11) {
-        box.classList.add('warning-red');
-      } else {
-        box.classList.remove('warning-red');
-      }
-
-      if (state.scores[0] < state.scores[1]) {
-        document.getElementById('diff-label').textContent = state.players[0] + ' önde';
-      } else if (state.scores[1] < state.scores[0]) {
-        document.getElementById('diff-label').textContent = state.players[1] + ' önde';
-      } else {
-        document.getElementById('diff-label').textContent = 'Berabere';
-      }
-    }
-
-    function newHand() {
-      saveAllInputs();
-
-      state.handHistory.push({
-        hand: state.hand,
-        scores: [...state.currentHand]
-      });
-
-      state.hand++;
-      state.currentHand = new Array(state.players.length).fill(0);
+    function addHand() {
+      state.hands.push(emptyHand());
       renderGame();
-      renderHistory();
+      window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function quickAdd(teamIndex, amount) {
+      // Son dolu olmayan / mevcut son ele ekle
+      const last = state.hands.length - 1;
+      state.hands[last][teamIndex] = Number(state.hands[last][teamIndex] || 0) + amount;
+      renderGame();
+    }
+
+    function updateRank() {
+      const t = totals();
+      const pairs = state.players.map((p, i) => ({ name: p, score: t[i] }));
+      pairs.sort((a, b) => a.score - b.score);
+      document.getElementById('rank-list').innerHTML = pairs.map((p, i) =>
+        `<div class="rank-line">${i + 1}. ${p.name}: ${p.score}</div>`
+      ).join('');
+
+      if (state.players.length >= 2) {
+        const diff = Math.abs(t[0] - t[1]);
+        document.getElementById('diff-line').textContent = 'Fark: ' + diff;
+        if (t[0] < t[1]) document.getElementById('diff-sub').textContent = state.players[0] + ' önde';
+        else if (t[1] < t[0]) document.getElementById('diff-sub').textContent = state.players[1] + ' önde';
+        else document.getElementById('diff-sub').textContent = 'Berabere';
+
+        const box = document.getElementById('rank-box');
+        if (state.hands.length >= 10) box.style.background = '#4a2222';
+        else box.style.background = '';
+      }
     }
 
     function finishGame() {
-      saveAllInputs();
-
-      if (state.currentHand.some(v => v !== 0) || state.handHistory.length === 0) {
-        state.handHistory.push({
-          hand: state.hand,
-          scores: [...state.currentHand]
-        });
-      }
-
+      const t = totals();
+      const min = Math.min(...t);
+      const winners = state.players.filter((_, i) => t[i] === min);
       showScreen('screen-end');
-      const min = Math.min(...state.scores);
-      const winners = state.players.filter((_, i) => state.scores[i] === min);
-
-      document.getElementById('winner-box').innerHTML = `
-        <h2>🏆 Kazanan</h2>
-        <div style="font-size:1.3rem;font-weight:700">${winners.join(' & ')}</div>
-        <div class="small" style="margin-top:8px">${min} puan</div>
-      `;
-
-      let html = '<h2>Final Skorlar</h2>';
-      state.players.forEach((p, i) => {
-        html += `<div class="score-row"><span>${p}</span><strong>${state.scores[i]}</strong></div>`;
-      });
-      document.getElementById('final-scores').innerHTML = html;
+      document.getElementById('winner-box').innerHTML =
+        `<h2>Kazanan</h2><div style="font-size:1.3rem;font-weight:700;margin-top:6px">${winners.join(' & ')}</div><div class="small" style="margin-top:8px">${min} puan</div>`;
+      document.getElementById('final-scores').innerHTML = '<h2>Final Skorlar</h2>' +
+        state.players.map((p, i) => `<div style="display:flex;justify-content:space-between;margin:6px 0"><span>${p}</span><strong>${t[i]}</strong></div>`).join('');
     }
 
     function resetApp() {
-      state = {
-        game: null, mode: null, players: [], scores: [],
-        hand: 1, currentHand: [0, 0], handHistory: []
-      };
+      state = { game: null, mode: null, players: [], hands: [] };
       showScreen('screen-start');
       renderIddialar();
     }
-
     function showScreen(id) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById(id).classList.add('active');
     }
-
     function goBack() {
       if (state.game === '101' && document.getElementById('screen-names').classList.contains('active')) {
         showScreen('screen-101-mode');
